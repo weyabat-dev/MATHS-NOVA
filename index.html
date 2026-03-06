@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>MathNova v16 - 3D Open World</title>
+
+<style>
+body{
+margin:0;
+overflow:hidden;
+font-family:Arial;
+background:black;
+color:white;
+}
+
+#ui{
+position:absolute;
+top:10px;
+left:10px;
+background:rgba(0,0,0,0.6);
+padding:15px;
+border-radius:10px;
+}
+
+input{
+font-size:16px;
+padding:5px;
+}
+
+button{
+padding:5px 10px;
+}
+</style>
+
+</head>
+
+<body>
+
+<div id="ui">
+<h2>🚀 MathNova v16</h2>
+
+<div id="question"></div>
+
+<input id="answer">
+<button onclick="checkAnswer()">Submit</button>
+
+<div id="result"></div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+
+<script>
+
+let scene = new THREE.Scene();
+
+let camera = new THREE.PerspectiveCamera(
+75,
+window.innerWidth/window.innerHeight,
+0.1,
+1000
+);
+
+let renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+camera.position.z = 5;
+camera.position.y = 3;
+
+const light = new THREE.DirectionalLight(0xffffff,1);
+light.position.set(5,10,7);
+scene.add(light);
+
+const groundGeometry = new THREE.PlaneGeometry(200,200);
+const groundMaterial = new THREE.MeshStandardMaterial({color:0x228B22});
+const ground = new THREE.Mesh(groundGeometry,groundMaterial);
+
+ground.rotation.x = -Math.PI/2;
+scene.add(ground);
+
+const vehicleGeometry = new THREE.BoxGeometry(1,0.5,2);
+const vehicleMaterial = new THREE.MeshStandardMaterial({color:0xff0000});
+const vehicle = new THREE.Mesh(vehicleGeometry,vehicleMaterial);
+
+vehicle.position.y = 0.25;
+scene.add(vehicle);
+
+let speed = 0.1;
+
+let keys = {};
+
+document.addEventListener("keydown",(e)=>keys[e.key]=true);
+document.addEventListener("keyup",(e)=>keys[e.key]=false);
+
+function moveVehicle(){
+
+if(keys["w"]) vehicle.position.z -= speed;
+if(keys["s"]) vehicle.position.z += speed;
+if(keys["a"]) vehicle.position.x -= speed;
+if(keys["d"]) vehicle.position.x += speed;
+
+}
+
+function animate(){
+
+requestAnimationFrame(animate);
+
+moveVehicle();
+
+camera.position.x = vehicle.position.x;
+camera.position.z = vehicle.position.z + 5;
+camera.lookAt(vehicle.position);
+
+renderer.render(scene,camera);
+
+}
+
+animate();
+
+let a,b,correct;
+
+function newQuestion(){
+
+a = Math.floor(Math.random()*10);
+b = Math.floor(Math.random()*10);
+
+correct = a + b;
+
+document.getElementById("question").innerText =
+a + " + " + b;
+
+}
+
+function checkAnswer(){
+
+let ans = document.getElementById("answer").value;
+
+if(ans == correct){
+
+document.getElementById("result").innerText="Correct!";
+newQuestion();
+
+}else{
+
+document.getElementById("result").innerText="Wrong";
+
+}
+
+document.getElementById("answer").value="";
+
+}
+
+newQuestion();
+
+</script>
+
+</body>
+</html>
